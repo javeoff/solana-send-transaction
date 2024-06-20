@@ -15,13 +15,15 @@ const getIsVersionedTransaction = (transaction: VersionedTransaction | Uint8Arra
 
 export const sendTransaction = async (
 	transaction: VersionedTransaction | Uint8Array,
-	{
-		commitment,
+	params?: IParams,
+): Promise<string | Error> => {
+	const {
 		connection = createConnection(),
 		repeatTimeout = 1000,
 		blockHeightLimit = 150,
-	}: IParams,
-): Promise<string | Error> => {
+		commitment = null,
+	} = params ? params : {}
+
 	if (getIsVersionedTransaction(transaction)) {
 		transaction = transaction.serialize();
 	}
