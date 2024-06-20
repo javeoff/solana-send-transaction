@@ -11,7 +11,8 @@ npm install solana-send-transaction
 Usage
 
 ```javascript
-import { VersionedTransaction } from "@solana/web3.js";
+import { VersionedTransaction } from '@solana/web3.js';
+import sendTransaction from 'solana-send-transaction';
 
 const transaction = new VersionedTransaction();
 
