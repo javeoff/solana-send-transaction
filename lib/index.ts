@@ -39,7 +39,6 @@ export default async function sendTransaction(
 	const sendTransaction = () => connection.sendRawTransaction(transaction as Uint8Array);
 	tx = await sendTransaction();
 
-	console.log('com', commitment)
 	if (commitment) {
 		let times = 0;
 		const status = await getTransactionStatus(tx, connection)
