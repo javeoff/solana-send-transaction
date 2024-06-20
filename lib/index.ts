@@ -1,40 +1,54 @@
 import { Connection, VersionedTransaction } from "@solana/web3.js";
-
-type TCommitment = 'processed' | 'confirmed' | 'finalized';
+import { createConnection } from "./createConnection";
+import { TCommitment } from "./types/TCommitment";
+import { getTransactionStatus } from "./getTransactionStatus";
 
 interface IParams {
-	commitment: TCommitment;
+	commitment?: TCommitment;
 	connection?: Connection;
-}
-
-export const createConnection = (url?: string, getProxy?: () => string) => {
-	return new Connection(url || "https://api.mainnet-beta.solana.com", {
-		wsEndpoint: 'wss://api.mainnet-beta.solana.com/',
-		fetch: getProxy ? async (input: any, options: any): Promise<Response> => {
-			const processedInput = typeof input === 'string' && input.slice(0, 2) === '//'
-				? 'https:' + input
-				: input;
-
-				return fetch(processedInput, {
-					...options,
-					proxy: getProxy ? getProxy() : undefined,
-				})
-		} : undefined
-	});
+	repeatTimeout?: number;
 }
 
 const getIsVersionedTransaction = (transaction: VersionedTransaction | Uint8Array): transaction is VersionedTransaction =>
 	typeof transaction === 'object' && transaction instanceof VersionedTransaction
 
-export const sendTransaction = (
+export const sendTransaction = async (
 	transaction: VersionedTransaction | Uint8Array,
 	{
+		commitment,
 		connection = createConnection(),
+		repeatTimeout = 1000,
 	}: IParams,
-) => {
+): Promise<string> => {
 	if (getIsVersionedTransaction(transaction)) {
 		transaction = transaction.serialize();
 	}
 
-	return connection.sendRawTransaction(transaction);
+	let tx = '';
+	const sendTransaction = () => connection.sendRawTransaction(transaction);
+	tx = await sendTransaction();
+
+	if (commitment) {
+		let times = 0;
+		const status = await getTransactionStatus(tx, connection)
+		let isReady = status === commitment;
+
+		while (!isReady) {
+			times += 1;
+			if (times > 5) {
+				break;
+			}
+			const status = await getTransactionStatus(tx)
+			isReady = status === commitment;
+			if (!isReady) {
+				tx = await sendTransaction();
+			}
+			else {
+				break;
+			}
+			await new Promise((resolve) => setTimeout(resolve, repeatTimeout));
+		}
+	}
+
+	return tx;
 }
