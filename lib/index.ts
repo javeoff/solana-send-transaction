@@ -7,6 +7,7 @@ interface IParams {
 	commitment?: TCommitment;
 	connection?: Connection;
 	repeatTimeout?: number;
+	blockHeightLimit?: number;
 }
 
 const getIsVersionedTransaction = (transaction: VersionedTransaction | Uint8Array): transaction is VersionedTransaction =>
@@ -18,6 +19,7 @@ export const sendTransaction = async (
 		commitment,
 		connection = createConnection(),
 		repeatTimeout = 1000,
+		blockHeightLimit = 150,
 	}: IParams,
 ): Promise<string | Error> => {
 	if (getIsVersionedTransaction(transaction)) {
@@ -28,7 +30,7 @@ export const sendTransaction = async (
 	let lastValidBlockHeight: number | null = null;
 
 	connection.getLatestBlockhashAndContext().then((blockhash) => {
-		lastValidBlockHeight = blockhash.value.lastValidBlockHeight;
+		lastValidBlockHeight = blockhash.value.lastValidBlockHeight - blockHeightLimit;
 	})
 
 	const sendTransaction = () => connection.sendRawTransaction(transaction);

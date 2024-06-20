@@ -30,6 +30,8 @@ sendTransaction(transaction).then((tx) => {
        - `confirmed` -  Query the most recent block which has reached 1 confirmation by the cluster
        - `finalized` - Query the most recent block which has been finalized by the cluster
     - `connection` - Connection instance from solana/web3.js
+    - `repeatTimeout` - Timeout to repeat while transaction does not reach commitment
+   - `blockHeightLimit` - Block height limit to repeat while transaction is not expired
 
 ## Deploy
 
