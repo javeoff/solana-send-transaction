@@ -33,7 +33,7 @@ export const sendTransaction = async (
 		lastValidBlockHeight = blockhash.value.lastValidBlockHeight - blockHeightLimit;
 	})
 
-	const sendTransaction = () => connection.sendRawTransaction(transaction);
+	const sendTransaction = () => connection.sendRawTransaction(transaction as Uint8Array);
 	tx = await sendTransaction();
 
 	if (commitment) {
