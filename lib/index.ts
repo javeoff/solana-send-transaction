@@ -19,12 +19,18 @@ export const sendTransaction = async (
 		connection = createConnection(),
 		repeatTimeout = 1000,
 	}: IParams,
-): Promise<string> => {
+): Promise<string | Error> => {
 	if (getIsVersionedTransaction(transaction)) {
 		transaction = transaction.serialize();
 	}
 
 	let tx = '';
+	let lastValidBlockHeight: number | null = null;
+
+	connection.getLatestBlockhashAndContext().then((blockhash) => {
+		lastValidBlockHeight = blockhash.value.lastValidBlockHeight;
+	})
+
 	const sendTransaction = () => connection.sendRawTransaction(transaction);
 	tx = await sendTransaction();
 
@@ -48,6 +54,16 @@ export const sendTransaction = async (
 			}
 			await new Promise((resolve) => setTimeout(resolve, repeatTimeout));
 		}
+	}
+
+	const blockHeight = await connection.getBlockHeight();
+
+	if (!lastValidBlockHeight) {
+		lastValidBlockHeight = blockHeight;
+	}
+
+	if (blockHeight > lastValidBlockHeight) {
+		return new Error("Transaction expired");
 	}
 
 	return tx;
