@@ -11,12 +11,13 @@ interface IParams {
 }
 
 const getIsVersionedTransaction = (transaction: VersionedTransaction | Uint8Array): transaction is VersionedTransaction =>
-	typeof transaction === 'object' && transaction instanceof VersionedTransaction
+	typeof transaction === 'object' && !Array.isArray(transaction)
 
-export const sendTransaction = async (
+
+export default async function sendTransaction(
 	transaction: VersionedTransaction | Uint8Array,
 	params?: IParams,
-): Promise<string | Error> => {
+): Promise<string | Error> {
 	const {
 		connection = createConnection(),
 		repeatTimeout = 1000,
@@ -38,6 +39,7 @@ export const sendTransaction = async (
 	const sendTransaction = () => connection.sendRawTransaction(transaction as Uint8Array);
 	tx = await sendTransaction();
 
+	console.log('com', commitment)
 	if (commitment) {
 		let times = 0;
 		const status = await getTransactionStatus(tx, connection)
@@ -72,3 +74,5 @@ export const sendTransaction = async (
 
 	return tx;
 }
+
+export { createConnection } from './createConnection'

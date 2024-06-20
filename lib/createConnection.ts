@@ -1,6 +1,7 @@
 import { Connection } from "@solana/web3.js";
+import type { Connection as TConnection } from "@solana/web3.js";
 
-export const createConnection = (url?: string, getProxy?: () => string) => {
+export const createConnection = (url?: string, getProxy?: () => string): TConnection => {
 	return new Connection(url || "https://api.mainnet-beta.solana.com", {
 		wsEndpoint: 'wss://api.mainnet-beta.solana.com/',
 		fetch: getProxy ? async (input: any, options: any): Promise<Response> => {
