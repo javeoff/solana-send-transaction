@@ -1,0 +1,11 @@
+{
+  "name": "solana-send-transaction",
+  "module": "lib/index.ts",
+  "type": "module",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.93.0"
+  }
+}
