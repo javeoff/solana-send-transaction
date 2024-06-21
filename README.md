@@ -32,6 +32,11 @@ sendTransaction(transaction).then((tx) => {
     - `connection` - Connection instance from solana/web3.js
     - `repeatTimeout` - Timeout to repeat while transaction does not reach commitment
    - `blockHeightLimit` - Block height limit to repeat while transaction is not expired
+   - `sendOptions` - Options for sendTransaction function
+      - `skipPreflight` - disable transaction verification step
+      - `preflightCommitment` - preflight commitment level
+      - `maxRetries` - Maximum number of times for the RPC node to retry sending the transaction to the leader
+      - `minContextSlot` - The minimum slot that the request can be evaluated at
 
 ## Deploy
 
