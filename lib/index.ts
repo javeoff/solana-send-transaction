@@ -1,4 +1,4 @@
-import { Connection, VersionedTransaction } from "@solana/web3.js";
+import { Connection, SendOptions, VersionedTransaction } from "@solana/web3.js";
 import { createConnection } from "./createConnection";
 import { TCommitment } from "./types/TCommitment";
 import { getTransactionStatus } from "./getTransactionStatus";
@@ -8,6 +8,7 @@ export interface ISendSolanaTransactionParams {
 	connection?: Connection;
 	repeatTimeout?: number;
 	blockHeightLimit?: number;
+	sendOptions?: SendOptions;
 }
 
 const getIsVersionedTransaction = (transaction: VersionedTransaction | Uint8Array): transaction is VersionedTransaction =>
@@ -36,7 +37,10 @@ export default async function sendTransaction(
 		lastValidBlockHeight = blockhash.value.lastValidBlockHeight - blockHeightLimit;
 	})
 
-	const sendTransaction = () => connection.sendRawTransaction(transaction as Uint8Array);
+	const sendTransaction = () => connection.sendRawTransaction(transaction as Uint8Array, {
+		preflightCommitment: undefined,
+		...(params?.sendOptions || {}),
+	});
 	tx = await sendTransaction();
 
 	if (commitment) {
@@ -57,18 +61,19 @@ export default async function sendTransaction(
 			else {
 				break;
 			}
+
+			const blockHeight = await connection.getBlockHeight();
+
+			if (!lastValidBlockHeight) {
+				lastValidBlockHeight = blockHeight;
+			}
+
+			if (blockHeight > lastValidBlockHeight) {
+				return new Error("Transaction expired");
+			}
+
 			await new Promise((resolve) => setTimeout(resolve, repeatTimeout));
 		}
-	}
-
-	const blockHeight = await connection.getBlockHeight();
-
-	if (!lastValidBlockHeight) {
-		lastValidBlockHeight = blockHeight;
-	}
-
-	if (blockHeight > lastValidBlockHeight) {
-		return new Error("Transaction expired");
 	}
 
 	return tx;
