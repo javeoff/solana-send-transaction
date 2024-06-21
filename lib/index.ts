@@ -3,7 +3,7 @@ import { createConnection } from "./createConnection";
 import { TCommitment } from "./types/TCommitment";
 import { getTransactionStatus } from "./getTransactionStatus";
 
-interface IParams {
+export interface ISendSolanaTransactionParams {
 	commitment?: TCommitment;
 	connection?: Connection;
 	repeatTimeout?: number;
@@ -16,7 +16,7 @@ const getIsVersionedTransaction = (transaction: VersionedTransaction | Uint8Arra
 
 export default async function sendTransaction(
 	transaction: VersionedTransaction | Uint8Array,
-	params?: IParams,
+	params?: ISendSolanaTransactionParams,
 ): Promise<string | Error> {
 	const {
 		connection = createConnection(),
