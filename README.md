@@ -1,18 +1,21 @@
 # solana-send-transaction
+---
+## @Deprecated, check [@cryptoscan-pro/solana-send-transaction](https://github.com/cryptoscan-pro/solana-send-transaction)
+---
 
 The fastest way to send transaction in solana
 
 To install package:
 
 ```bash
-npm install solana-send-transaction
+npm install @cryptoscan/solana-send-transaction
 ```
 
 Usage
 
 ```javascript
 import { VersionedTransaction } from '@solana/web3.js';
-import sendTransaction from 'solana-send-transaction';
+import sendTransaction from '@cryptoscan/solana-send-transaction';
 
 const transaction = new VersionedTransaction();
 
