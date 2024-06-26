@@ -1,8 +1,9 @@
 import { Connection } from "@solana/web3.js";
-import type { Connection as TConnection } from "@solana/web3.js";
+import type { ConnectionConfig, Connection as TConnection } from "@solana/web3.js";
 
-export const createConnection = (url?: string, getProxy?: () => string): TConnection => {
+export const createConnection = (url?: string, getProxy?: () => string, params: Partial<ConnectionConfig> = {}): TConnection => {
 	return new Connection(url || "https://api.mainnet-beta.solana.com", {
+		disableRetryOnRateLimit: true,
 		wsEndpoint: 'wss://api.mainnet-beta.solana.com/',
 		fetch: getProxy ? async (input: any, options: any): Promise<Response> => {
 			const processedInput = typeof input === 'string' && input.slice(0, 2) === '//'
@@ -13,6 +14,7 @@ export const createConnection = (url?: string, getProxy?: () => string): TConnec
 				...options,
 				proxy: getProxy ? getProxy() : undefined,
 			})
-		} : undefined
+		} : undefined,
+		...params,
 	});
 }
